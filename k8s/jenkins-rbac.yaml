@@ -1,0 +1,68 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+
+metadata:
+  name: jenkins-deployer
+  namespace: blogapp
+
+rules:
+
+  - apiGroups:
+      - apps
+
+    resources:
+      - deployments
+
+    verbs:
+      - get
+      - list
+      - watch
+      - patch
+      - update
+
+
+  - apiGroups:
+      - ""
+
+    resources:
+      - pods
+      - services
+
+    verbs:
+      - get
+      - list
+      - watch
+
+
+  - apiGroups:
+      - networking.k8s.io
+
+    resources:
+      - ingresses
+
+    verbs:
+      - get
+      - list
+      - watch
+
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+
+metadata:
+  name: jenkins-deployer-binding
+  namespace: blogapp
+
+subjects:
+
+  - kind: Group
+    name: blogapp-deployers
+    apiGroup: rbac.authorization.k8s.io
+
+roleRef:
+
+  kind: Role
+  name: jenkins-deployer
+  apiGroup: rbac.authorization.k8s.io
