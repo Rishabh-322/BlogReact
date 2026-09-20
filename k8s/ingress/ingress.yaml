@@ -1,0 +1,52 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+
+metadata:
+
+  name: blogapp-ingress
+
+  namespace: blogapp
+
+  annotations:
+
+    alb.ingress.kubernetes.io/scheme: internet-facing
+
+    alb.ingress.kubernetes.io/target-type: ip
+
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+
+
+spec:
+
+  ingressClassName: alb
+
+  rules:
+
+    - http:
+
+        paths:
+
+          - path: /api
+            pathType: Prefix
+
+            backend:
+
+              service:
+
+                name: backend-service
+
+                port:
+                  number: 5000
+
+
+          - path: /
+            pathType: Prefix
+
+            backend:
+
+              service:
+
+                name: frontend-service
+
+                port:
+                  number: 8080

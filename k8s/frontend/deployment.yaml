@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: frontend
+  namespace: blogapp
+
+spec:
+
+  replicas: 2
+
+  strategy:
+
+    type: RollingUpdate
+
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+
+  selector:
+
+    matchLabels:
+      app: frontend
+
+  template:
+
+    metadata:
+
+      labels:
+        app: frontend
+
+    spec:
+
+      containers:
+
+        - name: frontend
+
+          image: 076971082275.dkr.ecr.ap-south-1.amazonaws.com/blogapp-frontend:v1
+
+          imagePullPolicy: Always
+
+          ports:
+
+            - containerPort: 8080
+              name: http
+
+          readinessProbe:
+
+            httpGet:
+              path: /healthz
+              port: 8080
+
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+          livenessProbe:
+
+            httpGet:
+              path: /healthz
+              port: 8080
+
+            initialDelaySeconds: 10
+            periodSeconds: 20
+
+          resources:
+
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+
+          securityContext:
+
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL

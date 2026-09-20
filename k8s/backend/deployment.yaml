@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: backend
+  namespace: blogapp
+
+spec:
+
+  replicas: 2
+
+  strategy:
+
+    type: RollingUpdate
+
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+
+  selector:
+
+    matchLabels:
+      app: backend
+
+  template:
+
+    metadata:
+
+      labels:
+        app: backend
+
+    spec:
+
+      containers:
+
+        - name: backend
+
+          image: 076971082275.dkr.ecr.ap-south-1.amazonaws.com/blogapp-backend:v1
+
+          imagePullPolicy: Always
+
+          ports:
+
+            - containerPort: 5000
+              name: http
+
+          envFrom:
+
+            - configMapRef:
+                name: backend-config
+
+          env:
+
+            - name: DB_PASSWORD
+
+              valueFrom:
+
+                secretKeyRef:
+                  name: backend-secret
+                  key: DB_PASSWORD
+
+            - name: JWT_SECRET
+
+              valueFrom:
+
+                secretKeyRef:
+                  name: backend-secret
+                  key: JWT_SECRET
+
+          readinessProbe:
+
+            httpGet:
+              path: /readyz
+              port: 5000
+
+            initialDelaySeconds: 10
+            periodSeconds: 10
+
+          livenessProbe:
+
+            httpGet:
+              path: /healthz
+              port: 5000
+
+            initialDelaySeconds: 20
+            periodSeconds: 20
+
+          resources:
+
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+          securityContext:
+
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
