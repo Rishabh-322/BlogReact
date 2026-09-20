@@ -9,6 +9,13 @@ RUN npm ci --omit=dev
 
 FROM node:22-alpine AS runtime
 
+# Remove npm from the production image.
+# The application only needs Node.js at runtime, and this also removes
+# vulnerable npm-bundled packages detected by Trivy.
+RUN rm -rf /usr/local/lib/node_modules/npm \
+    && rm -f /usr/local/bin/npm \
+    && rm -f /usr/local/bin/npx
+
 WORKDIR /app
 
 ENV NODE_ENV=production
